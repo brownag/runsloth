@@ -1,18 +1,3 @@
-#' Stream generated text from an Unsloth model
-#'
-#' Streams generated tokens to `callback` while generation runs in a Python
-#' background thread. Chat prompts are formatted with the model's chat template.
-#'
-#' @param object A `runsloth_model` or `runsloth_vision_model`.
-#' @param prompt Text or a list of chat turns.
-#' @param images Optional image input for a vision model.
-#' @param max_new_tokens Maximum number of tokens to generate.
-#' @param temperature Sampling temperature; non-positive values use greedy decoding.
-#' @param callback Function called with each decoded text chunk.
-#' @return The concatenated generated text, invisibly.
-#' @export
-#' @examples
-#' \dontrun{unsloth_stream(model, "Explain photosynthesis.")}
 .stream_generation_options <- function(max_new_tokens, temperature) {
   args <- list(
     max_new_tokens = as_py_int(max_new_tokens),
@@ -43,6 +28,21 @@
   chunks
 }
 
+#' Stream generated text from an Unsloth model
+#'
+#' Streams generated tokens to `callback` while generation runs in a Python
+#' background thread. Chat prompts are formatted with the model's chat template.
+#'
+#' @param object A `runsloth_model` or `runsloth_vision_model`.
+#' @param prompt Text or a list of chat turns.
+#' @param images Optional image input for a vision model.
+#' @param max_new_tokens Maximum number of tokens to generate.
+#' @param temperature Sampling temperature; non-positive values use greedy decoding.
+#' @param callback Function called with each decoded text chunk.
+#' @return The concatenated generated text, invisibly.
+#' @export
+#' @examples
+#' \dontrun{unsloth_stream(model, "Explain photosynthesis.")}
 unsloth_stream <- function(
     object, prompt, images = NULL, max_new_tokens = 512L, temperature = 0.7,
     callback = function(chunk) {
@@ -87,7 +87,7 @@ def _runsloth_stream_generate():
     finally:
         runsloth_streamer.end()
 runsloth_stream_error = {}
-")
+", local = FALSE)
   worker <- reticulate::import("threading", delay_load = FALSE)$Thread(
     target = main$`_runsloth_stream_generate`)
   worker$start()

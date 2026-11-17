@@ -1,12 +1,28 @@
 test_that("package load does not initialize Python", {
-  code <- paste(
-    'pkgload::load_all(".", quiet = TRUE)',
-    'stopifnot(!reticulate::py_available(initialize = FALSE))',
-    sep = ";"
+  package_path <- normalizePath(testthat::test_path("..", ".."))
+  if (file.exists(file.path(package_path, "DESCRIPTION"))) {
+    code <- paste(
+      sprintf("pkgload::load_all(%s, quiet = TRUE)", shQuote(package_path)),
+      "stopifnot(!reticulate::py_available(initialize = FALSE))",
+      sep = ";"
+    )
+  } else {
+    code <- paste(
+      "library(runsloth)",
+      "stopifnot(!reticulate::py_available(initialize = FALSE))",
+      sep = ";"
+    )
+  }
+  output <- system2(
+    file.path(R.home("bin"), "Rscript"),
+    c("-e", shQuote(code)),
+    stdout = TRUE,
+    stderr = TRUE,
+    env = paste0("R_LIBS=", paste(.libPaths(), collapse = .Platform$path.sep))
   )
-  output <- system2(file.path(R.home("bin"), "Rscript"),
-                    c("-e", shQuote(code)), stdout = TRUE, stderr = TRUE)
-  expect_length(attr(output, "status"), 0L)
+  status <- attr(output, "status")
+  if (is.null(status)) status <- 0L
+  expect_identical(status, 0L, info = paste(output, collapse = "\n"))
 })
 
 test_that("integer and identifier helpers enforce their boundaries", {

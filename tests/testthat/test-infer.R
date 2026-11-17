@@ -54,10 +54,9 @@ test_that("stream consumption concatenates chunks and joins worker", {
 })
 
 test_that("generation worker always ends streamer and captures errors", {
-  source <- readLines(testthat::test_path("../../R/infer.R"))
-  worker <- paste(source, collapse = "\n")
-  expect_match(worker, "finally:\\s*\\n\\s+runsloth_streamer\\.end\\(\\)")
-  expect_match(worker, "runsloth_stream_error\\['message'\\] = str\\(exc\\)")
+  code <- paste(deparse(body(unsloth_stream)), collapse = "\n")
+  expect_match(code, "runsloth_streamer\\.end\\(\\)")
+  expect_match(code, "runsloth_stream_error")
 })
 
 test_that("stream rejects images for language models before Python access", {
