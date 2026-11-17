@@ -11,7 +11,15 @@ test_that("GRPO reward bridge returns scalar results as lists and forwards kwarg
   scalar_reward <- as_grpo_reward(function(prompts, completions, answer) {
     expect_identical(answer, c("truth"))
     1
-  }, pass_kwargs = TRUE)
+  }, name = "scalar_reward", pass_kwargs = TRUE)
+  expect_identical(
+    reticulate::py_to_r(reticulate::py_get_attr(scalar_reward, "__name__")),
+    "scalar_reward"
+  )
+  signature <- reticulate::py_eval(
+    "str(__import__('inspect').signature(scalar_reward))"
+  )
+  expect_match(signature, "\\*\\*kwargs")
   result <- reticulate::py_call(
     scalar_reward,
     list(prompts = c("prompt"), completions = c("completion")),
@@ -27,6 +35,17 @@ test_that("GRPO reward bridge returns scalar results as lists and forwards kwarg
   )
   expect_type(result, "list")
   expect_equal(unlist(result), c(1, 2))
+
+  no_kwargs_reward <- as_grpo_reward(
+    function(prompts, completions) 2,
+    name = "no_kwargs_reward"
+  )
+  result <- reticulate::py_call(
+    no_kwargs_reward,
+    list(prompts = c("prompt"), completions = c("completion")),
+    keywords = list(unused = c("ignored"))
+  )
+  expect_equal(unlist(result), 2)
 })
 
 test_that("GRPO training preserves reward function lists", {

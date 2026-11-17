@@ -33,18 +33,29 @@ as_grpo_reward <- function(r_fn, name = "r_custom_reward", pass_kwargs = FALSE) 
     cli::cli_abort("`pass_kwargs` must be TRUE or FALSE.")
   }
 
-  callback <- function(prompts, completions, ...) {
-    args <- list(prompts, completions)
-    if (isTRUE(pass_kwargs)) args <- c(args, list(...))
-    result <- do.call(r_fn, args)
-    if (is.numeric(result) && length(result) == 1L && !is.na(result)) {
-      return(list(as.numeric(result)))
-    }
-    if (is.list(result)) result else as.list(result)
+  main <- reticulate::import_main(convert = FALSE)
+  callback_name <- gsub(
+    "[^A-Za-z0-9_]", "_",
+    basename(tempfile(pattern = "runsloth_reward_callback_"))
+  )
+  main[[callback_name]] <- r_fn
+  forward <- if (isTRUE(pass_kwargs)) {
+    sprintf("%s(prompts, completions, **kwargs)", callback_name)
+  } else {
+    sprintf("%s(prompts, completions)", callback_name)
   }
-  reward <- reticulate::py_func(callback)
-  reticulate::py_set_attr(reward, "__name__", name)
-  reward
+  source <- sprintf(
+    paste0(
+      "def %s(prompts, completions, **kwargs):\n",
+      "    result = %s\n",
+      "    if isinstance(result, (int, float)):\n",
+      "        return [float(result)]\n",
+      "    return result"
+    ),
+    name, forward
+  )
+  reticulate::py_run_string(source, local = FALSE)
+  main[[name]]
 }
 
 #' Train a language model with GRPO
