@@ -1,15 +1,21 @@
 test_that("model wrappers preserve class and enforce token-before-LoRA order", {
+  received <- NULL
   unsloth_mock <- list(FastLanguageModel = list(
-    from_pretrained = function(model_name, max_seq_length, load_in_4bit) {
+    from_pretrained = function(model_name, max_seq_length, ...) {
+      received <<- list(...)
       list("model", "tokenizer")
     },
-    get_peft_model = function(model, ...) model,
-    add_new_tokens = function(model, tokenizer, new_tokens) {
-      list(model, c(tokenizer, new_tokens))
-    }
-  ))
-  local_mocked_bindings(unsloth = unsloth_mock)
+    get_peft_model = function(model, ...) model
+  ), add_new_tokens = function(model, tokenizer, new_tokens) {
+    list(model, c(tokenizer, new_tokens))
+  })
+  local_mocked_bindings(
+    unsloth = unsloth_mock,
+    py_callable_params = function(fn) c("load_in_4bit", "dtype")
+  )
   model <- unsloth_load_model(load_in_8bit = FALSE)
+  expect_true("dtype" %in% names(received))
+  expect_null(received$dtype)
   expect_s3_class(model, "runsloth_model")
   expect_error(
     unsloth_load_model(load_in_4bit = TRUE, load_in_8bit = TRUE),
@@ -39,6 +45,22 @@ test_that("chat mapping uses the configured conversation column", {
     conversations_col = "dialog", standardize_sharegpt = FALSE)
   expect_named(captured, "dialog")
   expect_identical(result$text, list("turn"))
+})
+
+test_that("chat formatting falls back when only standardize_sharegpt exists", {
+  standardized <- FALSE
+  dataset <- list(map = function(fn, batched) fn(list(dialog = list("turn"))))
+  local_mocked_bindings(
+    unsloth = list(chat_templates = list(standardize_sharegpt = function(x) {
+      standardized <<- TRUE
+      x
+    })),
+    datasets = list(Dataset = list(from_dict = function(x) dataset))
+  )
+  object <- list(tokenizer = list(apply_chat_template = function(x, ...) x))
+  unsloth_apply_chat_template(object, list(list(role = "user", content = "hi")),
+                              conversations_col = "dialog")
+  expect_true(standardized)
 })
 
 test_that("response masking only forwards supplied delimiters", {

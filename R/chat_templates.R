@@ -51,10 +51,12 @@ unsloth_apply_chat_template <- function(object, dataset,
       stats::setNames(list(dataset), conversations_col))
   }
   if (isTRUE(standardize_sharegpt)) {
-    if (!is.null(ct$standardize_data_formats)) {
-      dataset <- ct$standardize_data_formats(dataset)
-    } else if (!is.null(ct$standardize_sharegpt)) {
-      dataset <- ct$standardize_sharegpt(dataset)
+    standardize <- .optional_py_attr(ct, "standardize_data_formats")
+    if (is.null(standardize)) {
+      standardize <- .optional_py_attr(ct, "standardize_sharegpt")
+    }
+    if (!is.null(standardize)) {
+      dataset <- standardize(dataset)
     }
   }
   tokenizer <- object$tokenizer

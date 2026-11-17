@@ -52,8 +52,10 @@ unsloth_build_trainer <- function(
     train_on_responses_only = FALSE, instruction_part = NULL,
     response_part = NULL, ...) {
   if (is.data.frame(dataset)) dataset <- as_hf_dataset(dataset)
-  config_fn <- if (!is.null(trl$SFTConfig)) trl$SFTConfig else
-    transformers$TrainingArguments
+  config_fn <- .optional_py_attr(trl, "SFTConfig")
+  if (is.null(config_fn)) {
+    config_fn <- .optional_py_attr(transformers, "TrainingArguments")
+  }
   config_params <- py_callable_params(config_fn)
   trainer_params <- py_callable_params(trl$SFTTrainer)
   config_args <- .make_sft_config(
@@ -111,8 +113,9 @@ unsloth_train <- function(
     dataset_text_field = "text", packing = FALSE, dataset_num_proc = 1L,
     train_on_responses_only = FALSE, instruction_part = NULL,
     response_part = NULL, ...) {
-  if (!is.null(unsloth$FastLanguageModel$for_training)) {
-    unsloth$FastLanguageModel$for_training(object$model)
+  for_training <- .optional_py_attr(unsloth$FastLanguageModel, "for_training")
+  if (!is.null(for_training)) {
+    for_training(object$model)
   }
   trainer <- unsloth_build_trainer(
     object, dataset, max_seq_length, dataset_text_field, packing,

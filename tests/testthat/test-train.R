@@ -53,3 +53,25 @@ test_that("trainer masking happens at construction before training", {
   unsloth_train(object, dataset, train_on_responses_only = TRUE)
   expect_identical(events, c("training_mode", "build", "mask", "train"))
 })
+
+test_that("older TRL falls back to TrainingArguments without training mode hook", {
+  received <- NULL
+  legacy_args <- function(...) list(...)
+  trainer <- function(...) {
+    received <<- list(...)
+    list(train = function() NULL)
+  }
+  local_mocked_bindings(
+    unsloth = list(FastLanguageModel = list()),
+    trl = list(SFTTrainer = trainer),
+    transformers = list(TrainingArguments = legacy_args),
+    py_callable_params = function(fn) {
+      if (identical(fn, legacy_args)) "max_seq_length" else "tokenizer"
+    }
+  )
+  object <- list(model = "model", tokenizer = "tokenizer",
+                 max_seq_length = 64L)
+  expect_invisible(unsloth_train(object, list()))
+  expect_identical(received$args$max_seq_length, 64L)
+  expect_identical(received$tokenizer, "tokenizer")
+})

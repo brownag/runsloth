@@ -1,3 +1,8 @@
+.optional_py_attr <- function(object, name) {
+  if (is.list(object)) return(object[[name]])
+  tryCatch(reticulate::py_get_attr(object, name), error = function(e) NULL)
+}
+
 #' Load an Unsloth language model
 #'
 #' @param model_name Hugging Face model identifier.
@@ -29,10 +34,13 @@ unsloth_load_model <- function(
                    token = token)
   for (name in names(optional)) {
     value <- optional[[name]]
-    if ((name == "dtype" && name %in% params) ||
-        (!is.null(value) && (name %in% params || !identical(
+    if (name == "dtype" && name %in% params) {
+      args[name] <- list(value)
+    } else if (!is.null(value) && (name %in% params || !identical(
         value, switch(name, load_in_4bit = TRUE, load_in_8bit = FALSE,
-                      full_finetuning = FALSE, NULL))))) args[[name]] <- value
+                      full_finetuning = FALSE, NULL)))) {
+      args[[name]] <- value
+    }
   }
   result <- do.call(fn, args)
   structure(list(model = result[[1L]], tokenizer = result[[2L]],
@@ -51,7 +59,7 @@ unsloth_load_model <- function(
 #' \dontrun{object <- unsloth_add_tokens(object, c("<extra>"))}
 unsloth_add_tokens <- function(object, new_tokens) {
   if (isTRUE(object$has_lora)) cli::cli_abort("Add tokens before applying LoRA.")
-  updated <- unsloth$FastLanguageModel$add_new_tokens(
+  updated <- unsloth$add_new_tokens(
     object$model, object$tokenizer, new_tokens = as.list(new_tokens))
   object$model <- updated[[1L]]
   object$tokenizer <- updated[[2L]]
