@@ -1,0 +1,28 @@
+Package: runsloth
+Title: R Interface to Unsloth
+Version: 0.1.0
+Authors@R: person("Andrew", "Brown", email = "brown.andrewg@gmail.com",
+    role = c("aut", "cre"), comment = c(ORCID = "0000-0002-4565-533X"))
+Description: Provides an R interface to the Unsloth Python package through
+    reticulate, with explicit environment setup and delayed Python loading.
+License: Apache License (>= 2)
+Encoding: UTF-8
+Depends:
+    R (>= 4.1.0)
+Imports:
+    cli,
+    reticulate (>= 1.34.0),
+    rlang,
+    stats,
+    utils
+Suggests:
+    ellmer,
+    httr2,
+    jsonlite,
+    ollamar,
+    processx,
+    testthat (>= 3.0.0),
+    tibble
+Config/testthat/edition: 3
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
