@@ -10,17 +10,47 @@ test_that("generation options use greedy decoding without temperature", {
 })
 
 test_that("chat prompts use the model chat-template contract", {
-  formatted <- FALSE
-  local_mocked_bindings(
-    unsloth_apply_chat_template = function(object, dataset, ...) {
-      formatted <<- TRUE
-      "formatted prompt"
-    }
-  )
+  received <- NULL
+  tokenizer <- list(apply_chat_template = function(messages, ...) {
+    received <<- list(messages = messages, ...)
+    "formatted prompt with assistant prefix"
+  })
   result <- .stream_prompt(
-    list(), list(list(role = "user", content = "hi")))
-  expect_true(formatted)
-  expect_identical(result, "formatted prompt")
+    list(tokenizer = tokenizer), list(list(role = "user", content = "hi")))
+  expect_identical(result, "formatted prompt with assistant prefix")
+  expect_identical(received$messages[[1]]$content, "hi")
+  expect_identical(received$tokenize, FALSE)
+  expect_identical(received$add_generation_prompt, TRUE)
+})
+
+test_that("stream worker is joined even when callback errors", {
+  joined <- FALSE
+  worker <- list(join = function() joined <<- TRUE)
+  local_mocked_bindings(
+    .stream_chunks = function(streamer) c("first", "second")
+  )
+  expect_error(
+    .consume_stream(NULL, worker, function(chunk) {
+      if (identical(chunk, "first")) stop("callback failed")
+    }),
+    "callback failed"
+  )
+  expect_true(joined)
+})
+
+test_that("stream consumption concatenates chunks and joins worker", {
+  joined <- FALSE
+  seen <- character()
+  worker <- list(join = function() joined <<- TRUE)
+  local_mocked_bindings(
+    .stream_chunks = function(streamer) c("hello", " world")
+  )
+  result <- .consume_stream(NULL, worker, function(chunk) {
+    seen <<- c(seen, chunk)
+  })
+  expect_identical(result, c("hello", " world"))
+  expect_identical(seen, result)
+  expect_true(joined)
 })
 
 test_that("generation worker always ends streamer and captures errors", {

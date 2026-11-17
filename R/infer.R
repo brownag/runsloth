@@ -24,10 +24,23 @@
 
 .stream_prompt <- function(object, prompt) {
   if (is.list(prompt)) {
-    return(unsloth_apply_chat_template(
-      object, list(prompt), standardize_sharegpt = FALSE))
+    return(object$tokenizer$apply_chat_template(
+      prompt, tokenize = FALSE, add_generation_prompt = TRUE))
   }
   prompt
+}
+
+.stream_chunks <- function(streamer) reticulate::iterate(streamer)
+
+.consume_stream <- function(streamer, worker, callback) {
+  on.exit(worker$join(), add = TRUE)
+  chunks <- character()
+  for (chunk in .stream_chunks(streamer)) {
+    chunk <- as.character(chunk)
+    chunks <- c(chunks, chunk)
+    callback(chunk)
+  }
+  chunks
 }
 
 unsloth_stream <- function(
@@ -78,13 +91,7 @@ runsloth_stream_error = {}
   worker <- reticulate::import("threading", delay_load = FALSE)$Thread(
     target = main$`_runsloth_stream_generate`)
   worker$start()
-  chunks <- character()
-  for (chunk in reticulate::iterate(streamer)) {
-    chunk <- as.character(chunk)
-    chunks <- c(chunks, chunk)
-    callback(chunk)
-  }
-  worker$join()
+  chunks <- .consume_stream(streamer, worker, callback)
   error <- reticulate::py_to_r(main$runsloth_stream_error)
   if (length(error$message)) cli::cli_abort("Generation failed: {error$message}")
   result <- paste0(chunks, collapse = "")
