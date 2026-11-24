@@ -67,19 +67,19 @@ test_that(".export_gguf_internal passes arguments by keyword and returns the pat
   env <- new.env(parent = emptyenv())
   object <- list(
     model = list(
-      save_pretrained_gguf = function(save_dir, tokenizer, quantization_method,
+      save_pretrained_gguf = function(save_directory, tokenizer, quantization_method,
                                       maximum_memory_usage) {
         env$call <- sys.call()
         env$quant <- quantization_method
         env$tokenizer <- tokenizer
-        file.create(file.path(save_dir, "m-Q8_0.gguf"))
+        file.create(file.path(save_directory, "m-Q8_0.gguf"))
       }
     ),
     tokenizer = "tok"
   )
   path <- .export_gguf_internal(object, dir, quantization_method = "q8_0")
   expect_identical(basename(path), "m-Q8_0.gguf")
-  expect_identical(names(env$call)[-1], c("", "tokenizer", "quantization_method",
+  expect_identical(names(env$call)[-1], c("save_directory", "tokenizer", "quantization_method",
                                           "maximum_memory_usage"))
   expect_identical(env$tokenizer, "tok")
   expect_identical(env$quant, "q8_0")
@@ -90,10 +90,10 @@ test_that(".export_gguf_internal sends multiple quantization methods as a list",
   env <- new.env(parent = emptyenv())
   object <- list(
     model = list(
-      save_pretrained_gguf = function(save_dir, tokenizer, quantization_method,
+      save_pretrained_gguf = function(save_directory, tokenizer, quantization_method,
                                       maximum_memory_usage) {
         env$quant <- quantization_method
-        file.create(file.path(save_dir, "m-Q8_0.gguf"))
+        file.create(file.path(save_directory, "m-Q8_0.gguf"))
       }
     ),
     tokenizer = "tok"
@@ -107,7 +107,7 @@ test_that(".export_gguf_internal sends multiple quantization methods as a list",
 test_that(".export_gguf_internal aborts when no GGUF is produced", {
   dir <- withr::local_tempdir()
   object <- list(
-    model = list(save_pretrained_gguf = function(save_dir, tokenizer,
+    model = list(save_pretrained_gguf = function(save_directory, tokenizer,
                                                  quantization_method,
                                                  maximum_memory_usage) NULL),
     tokenizer = "tok"

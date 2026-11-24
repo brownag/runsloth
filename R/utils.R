@@ -90,7 +90,7 @@ resolve_model_device <- function(model) {
     quantization_method
   }
   object$model$save_pretrained_gguf(
-    save_dir,
+    save_directory = save_dir,
     tokenizer = object$tokenizer,
     quantization_method = quant_arg,
     maximum_memory_usage = max_memory_usage
