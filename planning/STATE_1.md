@@ -16,8 +16,8 @@ Branch: `feat/package-base` (base `main`)
 | Wave | Task | Status | Commit |
 |---|---|---|---|
 | 1 | 1.1.1 Package skeleton, delayed imports, test helpers | done | `7998f6f` |
-| 2 | 1.2.1 Interop and GGUF helpers in `R/utils.R` | in progress | |
-| 3 | 1.3.1 Release-hygiene pass | pending | |
+| 2 | 1.2.1 Interop and GGUF helpers in `R/utils.R` | done | `849d6b9` |
+| 3 | 1.3.1 Release-hygiene pass | in progress | |
 
 ## Task reports
 
@@ -30,4 +30,14 @@ Branch: `feat/package-base` (base `main`)
 - roxygen: NAMESPACE has `importFrom(rlang,"%||%")`. DESCRIPTION gained `Config/roxygen2/version: 8.1.1`.
 - Deviations: Title and Description per coordinator answer (not the spec's wording). Cache is `.runsloth_test_env` (package-local env in helper-skip.R) holding path or skip reason. `skip_on_cran()` runs first.
 - Gotchas for 1.2.1: helpers are `skip_if_no_python()` (returns the path invisibly), `skip_if_no_unsloth()`, `skip_if_no_gpu()`. Use `testthat::` qualified calls. `ensure_unsloth()` is `@noRd`. Python tests skip unless `RUNSLOTH_TEST_PYTHON` or `python3` on PATH resolves.
+- Discovered: none.
+
+## 1.2.1
+
+- Status: done. Commit `849d6b9` (code only). `planning/` left uncommitted.
+- Files: `R/utils.R` (1-127, new), `tests/testthat/test-utils.R` (1-130, new). `NAMESPACE` and `man/` unchanged by roxygen (all helpers `@noRd`, no exports).
+- Tests: `testthat::test_local(filter='utils')` -> FAIL 0, WARN 0, SKIP 0, PASS 36 (incl. 2 Python tests, not skipped). `test_local(filter='load')` -> FAIL 0, PASS 2.
+- Acceptance: `roxygen2::roxygenise()` ran clean.
+- Deviations: per coordinator answers, `as_py_int` accepts numeric vectors (elementwise), rejects logical; `.find_exported_gguf` case-insensitive f16/bf16 rank, sorted tie-break. One test expectation of mine was corrected during the run (q8_0 ranks the Q4 file above F16 per the spec's rank 2 vs 3); code unchanged.
+- Gotchas for dependent tasks: `NOT_CRAN` is set by `test_local()` (`local_assume_not_on_cran`), so Python tests run there. `.py_keywords` vector is in `R/utils.R`. `as_py_dtype` references `torch` only after validation; a real float16 call needs torch installed (untested here).
 - Discovered: none.
