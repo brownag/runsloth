@@ -3,27 +3,27 @@ test_that("as_py_int coerces whole numbers and rejects the rest", {
   expect_identical(as_py_int(2), 2L)
   expect_identical(as_py_int(c(1, 2)), c(1L, 2L))
   expect_identical(as_py_int(numeric(0)), integer(0))
-  expect_error(as_py_int(2.5))
-  expect_error(as_py_int(NA))
-  expect_error(as_py_int(Inf))
-  expect_error(as_py_int("a"))
-  expect_error(as_py_int(TRUE))
+  expect_error(as_py_int(2.5), regexp = "whole number")
+  expect_error(as_py_int(NA), regexp = "whole number")
+  expect_error(as_py_int(Inf), regexp = "whole number")
+  expect_error(as_py_int("a"), regexp = "whole number")
+  expect_error(as_py_int(TRUE), regexp = "whole number")
   expect_error(as_py_int(3e9), regexp = "integer range")
 })
 
 test_that("validate_py_identifier accepts identifiers and rejects others", {
   expect_identical(validate_py_identifier("good_name1"), "good_name1")
   expect_invisible(validate_py_identifier("ok"))
-  expect_error(validate_py_identifier("1abc"))
-  expect_error(validate_py_identifier("a-b"))
-  expect_error(validate_py_identifier("class"))
-  expect_error(validate_py_identifier(c("a", "b")))
-  expect_error(validate_py_identifier(NA_character_))
+  expect_error(validate_py_identifier("1abc"), regexp = "valid Python identifier")
+  expect_error(validate_py_identifier("a-b"), regexp = "valid Python identifier")
+  expect_error(validate_py_identifier("class"), regexp = "valid Python identifier")
+  expect_error(validate_py_identifier(c("a", "b")), regexp = "valid Python identifier")
+  expect_error(validate_py_identifier(NA_character_), regexp = "valid Python identifier")
 })
 
 test_that("as_py_dtype returns NULL for NULL and rejects unknown dtypes", {
   expect_null(as_py_dtype(NULL))
-  expect_error(as_py_dtype("float64"))
+  expect_error(as_py_dtype("float64"), regexp = "must be one of")
   torch_dtype <- "float64"
   expect_error(as_py_dtype(torch_dtype), regexp = "torch_dtype")
 })
@@ -110,7 +110,7 @@ test_that(".export_gguf sends multiple quantization methods as a list", {
 test_that(".export_gguf aborts when no GGUF is produced", {
   dir <- withr::local_tempdir()
   env <- new.env(parent = emptyenv())
-  expect_error(.export_gguf(fake_gguf_object(env, output = NULL), dir))
+  expect_error(.export_gguf(fake_gguf_object(env, output = NULL), dir), regexp = "No GGUF file")
 })
 
 test_that("py_callable_params lists parameter names", {
