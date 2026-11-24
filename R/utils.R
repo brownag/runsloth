@@ -1,6 +1,7 @@
 # Python interop and GGUF helpers. All internal.
 
-# Python keywords (keyword.kwlist, Python 3.12).
+#' Python reserved keywords (`keyword.kwlist`, Python 3.12).
+#' @noRd
 .py_keywords <- c(
   "False", "None", "True", "and", "as", "assert", "async", "await", "break",
   "class", "continue", "def", "del", "elif", "else", "except", "finally",
@@ -8,7 +9,7 @@
   "not", "or", "pass", "raise", "return", "try", "while", "with", "yield"
 )
 
-# Coerces a whole-number R value to an integer for Python; NULL passes through.
+#' Coerce whole-number R values to integers for Python; `NULL` passes through.
 #' @noRd
 as_py_int <- function(x, arg = rlang::caller_arg(x)) {
   if (is.null(x)) return(NULL)
@@ -21,6 +22,7 @@ as_py_int <- function(x, arg = rlang::caller_arg(x)) {
   as.integer(x)
 }
 
+#' Abort unless `name` is a single valid, non-keyword Python identifier.
 #' @noRd
 validate_py_identifier <- function(name) {
   if (!is.character(name) || length(name) != 1L || is.na(name) ||
@@ -30,7 +32,8 @@ validate_py_identifier <- function(name) {
   invisible(name)
 }
 
-# Validates the dtype name before touching torch (Hazard H4).
+#' Map a half-precision dtype name to a torch dtype, validating before
+#' touching torch (Hazard H4).
 #' @noRd
 as_py_dtype <- function(x, arg = rlang::caller_arg(x)) {
   if (is.null(x)) return(NULL)
@@ -41,17 +44,22 @@ as_py_dtype <- function(x, arg = rlang::caller_arg(x)) {
   if (x %in% c("float16", "fp16")) torch$float16 else torch$bfloat16
 }
 
+#' List the parameter names a Python callable accepts.
 #' @noRd
 py_callable_params <- function(fn) {
   params <- inspect$signature(fn)$parameters$keys()
   as.character(unlist(reticulate::py_to_r(reticulate::import_builtins()$list(params))))
 }
 
+#' Return a device as a string, converting a Python device object if needed.
+#' @noRd
 py_as_device_string <- function(x) {
   if (is.character(x)) return(x)
   reticulate::py_str(x)
 }
 
+#' Find a model's device from its `device` attribute or first parameter;
+#' defaults to `"cpu"`.
 #' @noRd
 resolve_model_device <- function(model) {
   dev <- tryCatch(py_as_device_string(model$device), error = function(e) NULL)
@@ -64,7 +72,7 @@ resolve_model_device <- function(model) {
   if (is.null(dev) || length(dev) != 1L || is.na(dev) || !nzchar(dev)) "cpu" else dev
 }
 
-# Finds the best exported GGUF under save_dir. Returns NULL when none exist.
+#' Find the best exported GGUF file under `save_dir`; `NULL` when none exist.
 #' @noRd
 .find_exported_gguf <- function(save_dir, quantization_method) {
   files <- list.files(save_dir, pattern = "\\.gguf$", recursive = TRUE,
@@ -80,7 +88,7 @@ resolve_model_device <- function(model) {
   normalizePath(best, winslash = "/", mustWork = FALSE)
 }
 
-# Runs the Python GGUF export and returns the exported file path.
+#' Run the Python GGUF export and return the exported file path.
 #' @noRd
 .export_gguf <- function(object, save_dir, quantization_method = "q4_k_m",
                          max_memory_usage = 0.75) {
