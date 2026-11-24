@@ -7,21 +7,15 @@ skip_if_no_python <- function() {
   if (!exists("python", envir = .runsloth_test_env, inherits = FALSE)) {
     path <- Sys.getenv("RUNSLOTH_TEST_PYTHON", unset = "")
     if (!nzchar(path)) path <- unname(Sys.which("python3"))
-    if (!nzchar(path)) {
-      assign("python", list(skip = "No Python interpreter found for tests"),
-             envir = .runsloth_test_env)
+    state <- if (!nzchar(path)) {
+      list(skip = "No Python interpreter found for tests")
     } else {
-      ok <- tryCatch({
+      tryCatch({
         reticulate::use_python(path, required = TRUE)
-        TRUE
-      }, error = function(e) conditionMessage(e))
-      if (isTRUE(ok)) {
-        assign("python", list(path = path), envir = .runsloth_test_env)
-      } else {
-        assign("python", list(skip = paste("Cannot use Python:", ok)),
-               envir = .runsloth_test_env)
-      }
+        list(path = path)
+      }, error = function(e) list(skip = paste("Cannot use Python:", conditionMessage(e))))
     }
+    assign("python", state, envir = .runsloth_test_env)
   }
   state <- get("python", envir = .runsloth_test_env, inherits = FALSE)
   if (!is.null(state$skip)) testthat::skip(state$skip)
