@@ -32,11 +32,11 @@ validate_py_identifier <- function(name) {
 
 # Validates the dtype name before touching torch (Hazard H4).
 #' @noRd
-as_py_dtype <- function(x) {
+as_py_dtype <- function(x, arg = rlang::caller_arg(x)) {
   if (is.null(x)) return(NULL)
   allowed <- c("float16", "fp16", "bfloat16", "bf16")
   if (!is.character(x) || length(x) != 1L || is.na(x) || !(x %in% allowed)) {
-    cli::cli_abort("{.arg dtype} must be one of {.val {allowed}}, not {.val {x}}.")
+    cli::cli_abort("{.arg {arg}} must be one of {.val {allowed}}, not {.val {x}}.")
   }
   if (x %in% c("float16", "fp16")) torch$float16 else torch$bfloat16
 }

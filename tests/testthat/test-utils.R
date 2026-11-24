@@ -24,6 +24,8 @@ test_that("validate_py_identifier accepts identifiers and rejects others", {
 test_that("as_py_dtype returns NULL for NULL and rejects unknown dtypes", {
   expect_null(as_py_dtype(NULL))
   expect_error(as_py_dtype("float64"))
+  torch_dtype <- "float64"
+  expect_error(as_py_dtype(torch_dtype), regexp = "torch_dtype")
 })
 
 test_that(".find_exported_gguf ranks quantized, then other, then f16/bf16", {
