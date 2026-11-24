@@ -47,18 +47,18 @@ py_callable_params <- function(fn) {
   as.character(unlist(reticulate::py_to_r(reticulate::import_builtins()$list(params))))
 }
 
-.py_as_device_string <- function(x) {
+py_as_device_string <- function(x) {
   if (is.character(x)) return(x)
   reticulate::py_str(x)
 }
 
 #' @noRd
 resolve_model_device <- function(model) {
-  dev <- tryCatch(.py_as_device_string(model$device), error = function(e) NULL)
+  dev <- tryCatch(py_as_device_string(model$device), error = function(e) NULL)
   if (is.null(dev)) {
     dev <- tryCatch({
       first <- reticulate::iter_next(reticulate::as_iterator(model$parameters()))
-      if (is.null(first)) NULL else .py_as_device_string(first$device)
+      if (is.null(first)) NULL else py_as_device_string(first$device)
     }, error = function(e) NULL)
   }
   if (is.null(dev) || length(dev) != 1L || is.na(dev) || !nzchar(dev)) "cpu" else dev
@@ -82,8 +82,8 @@ resolve_model_device <- function(model) {
 
 # Runs the Python GGUF export and returns the exported file path.
 #' @noRd
-.export_gguf_internal <- function(object, save_dir, quantization_method = "q4_k_m",
-                                  max_memory_usage = 0.75) {
+.export_gguf <- function(object, save_dir, quantization_method = "q4_k_m",
+                         max_memory_usage = 0.75) {
   quant_arg <- if (length(quantization_method) > 1L) {
     as.list(quantization_method)
   } else {

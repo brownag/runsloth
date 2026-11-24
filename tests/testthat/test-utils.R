@@ -62,7 +62,7 @@ test_that(".find_exported_gguf searches nested subdirectories", {
   expect_identical(basename(.find_exported_gguf(dir, "q4_k_m")), "model-Q4_K_M.gguf")
 })
 
-test_that(".export_gguf_internal passes arguments by keyword and returns the path", {
+test_that(".export_gguf passes arguments by keyword and returns the path", {
   dir <- withr::local_tempdir()
   env <- new.env(parent = emptyenv())
   object <- list(
@@ -77,7 +77,7 @@ test_that(".export_gguf_internal passes arguments by keyword and returns the pat
     ),
     tokenizer = "tok"
   )
-  path <- .export_gguf_internal(object, dir, quantization_method = "q8_0")
+  path <- .export_gguf(object, dir, quantization_method = "q8_0")
   expect_identical(basename(path), "m-Q8_0.gguf")
   expect_identical(names(env$call)[-1], c("save_directory", "tokenizer", "quantization_method",
                                           "maximum_memory_usage"))
@@ -85,7 +85,7 @@ test_that(".export_gguf_internal passes arguments by keyword and returns the pat
   expect_identical(env$quant, "q8_0")
 })
 
-test_that(".export_gguf_internal sends multiple quantization methods as a list", {
+test_that(".export_gguf sends multiple quantization methods as a list", {
   dir <- withr::local_tempdir()
   env <- new.env(parent = emptyenv())
   object <- list(
@@ -98,13 +98,13 @@ test_that(".export_gguf_internal sends multiple quantization methods as a list",
     ),
     tokenizer = "tok"
   )
-  path <- .export_gguf_internal(object, dir, quantization_method = c("q4_k_m", "q8_0"))
+  path <- .export_gguf(object, dir, quantization_method = c("q4_k_m", "q8_0"))
   expect_true(is.list(env$quant))
   expect_identical(unlist(env$quant), c("q4_k_m", "q8_0"))
   expect_identical(basename(path), "m-Q8_0.gguf")
 })
 
-test_that(".export_gguf_internal aborts when no GGUF is produced", {
+test_that(".export_gguf aborts when no GGUF is produced", {
   dir <- withr::local_tempdir()
   object <- list(
     model = list(save_pretrained_gguf = function(save_directory, tokenizer,
@@ -112,7 +112,7 @@ test_that(".export_gguf_internal aborts when no GGUF is produced", {
                                                  maximum_memory_usage) NULL),
     tokenizer = "tok"
   )
-  expect_error(.export_gguf_internal(object, dir))
+  expect_error(.export_gguf(object, dir))
 })
 
 test_that("py_callable_params lists parameter names", {
