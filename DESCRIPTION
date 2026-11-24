@@ -1,0 +1,18 @@
+Package: runsloth
+Title: R Interface to 'Unsloth' via 'reticulate'
+Version: 0.1.0
+Authors@R: person("Andrew Gene", "Brown", role = c("aut", "cre"), email = "brown.andrewg@gmail.com")
+Description: Wraps the 'Python' library 'Unsloth' through 'reticulate' for fine-tuning, inference, and export of large language models. 'Python' is only initialized when an 'Unsloth'-backed function is first called.
+License: Apache License (>= 2)
+Encoding: UTF-8
+Depends: R (>= 4.1.0)
+Imports:
+    cli,
+    reticulate (>= 1.34.0),
+    rlang
+Suggests:
+    testthat (>= 3.0.0),
+    withr
+Config/testthat/edition: 3
+Roxygen: list(markdown = TRUE)
+Config/roxygen2/version: 8.1.1
