@@ -19,10 +19,10 @@ Resolve the two-axis review findings on `feat/package-base` (excluding the user-
 - [x] Extract a local name normalizer in `.find_exported_gguf`; add a comment and a test pinning that a quant-matching file containing `f16` still ranks first. Commit `refactor(utils): share GGUF name normalization`
 
 ### 4. Tests
-- [ ] Add a `fake_gguf_object()` helper in `test-utils.R` and use it in the three `.export_gguf` tests. Commit `test(utils): share GGUF stand-in object`
-- [ ] `helper-skip.R`: compute state in one expression, assign once. Commit `test: assign Python skip state once`
-- [ ] `test-load.R`: assert `inherits(runsloth:::trl, "python.builtin.module")` without initializing Python. Commit `test(load): check delayed module proxy class`
-- [ ] Add `regexp =` to every `expect_error()` in `test-utils.R`. Commit `test(utils): match error messages`
+- [x] Add a `fake_gguf_object()` helper in `test-utils.R` and use it in the three `.export_gguf` tests. Commit `test(utils): share GGUF stand-in object`
+- [x] `helper-skip.R`: compute state in one expression, assign once. Commit `test: assign Python skip state once`
+- [x] `test-load.R`: assert `inherits(runsloth:::trl, "python.builtin.module")` without initializing Python. Commit `test(load): check delayed module proxy class`
+- [x] Add `regexp =` to every `expect_error()` in `test-utils.R`. Commit `test(utils): match error messages`
 
 ### 5. Bookkeeping and verification
 - [ ] `planning/STATE_1.md` line 49: replace `see git log -1` with `dfad6df`. Commit `docs(planning): record 1.3.1 commit hash`
