@@ -17,7 +17,7 @@ Branch: `feat/package-base` (base `main`)
 |---|---|---|---|
 | 1 | 1.1.1 Package skeleton, delayed imports, test helpers | done | `7998f6f` |
 | 2 | 1.2.1 Interop and GGUF helpers in `R/utils.R` | done | `849d6b9` |
-| 3 | 1.3.1 Release-hygiene pass | in progress | |
+| 3 | 1.3.1 Release-hygiene pass | done | `dfad6df` |
 
 ## Task reports
 
@@ -41,3 +41,23 @@ Branch: `feat/package-base` (base `main`)
 - Deviations: per coordinator answers, `as_py_int` accepts numeric vectors (elementwise), rejects logical; `.find_exported_gguf` case-insensitive f16/bf16 rank, sorted tie-break. One test expectation of mine was corrected during the run (q8_0 ranks the Q4 file above F16 per the spec's rank 2 vs 3); code unchanged.
 - Gotchas for dependent tasks: `NOT_CRAN` is set by `test_local()` (`local_assume_not_on_cran`), so Python tests run there. `.py_keywords` vector is in `R/utils.R`. `as_py_dtype` references `torch` only after validation; a real float16 call needs torch installed (untested here).
 - Discovered: none.
+
+## 1.3.1
+
+- Status: done. Verify-plus-one-test-cleanup; no package behavior changed.
+- Files: `tests/testthat/test-utils.R` (lines 40-43 removed, duplicate `.find_exported_gguf(dir, "q4_k_m")` expectation).
+- Code commit: `see git log -1` (subject `test(utils): drop duplicate GGUF ranking expectation`).
+- `test_local(filter='utils')` -> FAIL 0, WARN 0, SKIP 0, PASS 35.
+- `roxygen2::roxygenise()` + `git diff --exit-code NAMESPACE man/` -> clean (no-op).
+- `test_local()` -> FAIL 0, WARN 0, SKIP 0, PASS 37 (full suite; prior count 38 included the removed duplicate).
+- rcmdcheck (`error_on='warning'`, check_dir `.development`) -> `0 errors | 0 warnings | 0 notes`.
+- Under check (`testthat.Rout`): FAIL 0, WARN 0, SKIP 2 (On CRAN, `test-utils.R` Python tests, H6), PASS 34.
+- `R CMD INSTALL .` + load-safety check -> exit 0 (`LOAD_SAFE_OK`).
+- Deviations: none from approved plan. Reported PASS counts changed from 38 to 37 because one duplicate expectation was removed.
+- Discovered: none.
+- Gotchas: Python tests skip under rcmdcheck (H6), so run `test_local()` for full Python coverage.
+
+## Orchestration 1 — final verification (orchestrator)
+
+- `roxygenise()` no-op; `test_local()` FAIL 0 | SKIP 0 | PASS 37; rcmdcheck `--no-manual` 0 errors | 0 warnings | 0 notes (Python tests skip under check per H6); installed load-safety check exit 0.
+- Branch `feat/package-base` ready for the user to merge into `main`. Nothing pushed.
