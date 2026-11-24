@@ -1,0 +1,37 @@
+# TODO
+
+## Goal
+Resolve the two-axis review findings on `feat/package-base` (excluding the user-requested ADR, `.Rbuildignore`, 1.3.1 test-deletion, and extra-test-case items).
+
+## Tasks
+
+### 1. Planning
+- [ ] Commit this `TODO.md` as `docs(planning): add review-fix plan`
+
+### 2. Boundary helpers (`R/utils.R`)
+- [ ] `as_py_int` aborts when any `abs(x) > .Machine$integer.max`; add a `3e9` error test. Commit `fix(utils): reject whole numbers outside integer range`
+- [ ] `as_py_dtype` gains `arg = rlang::caller_arg(x)` and uses `{.arg {arg}}`; add a test that the error names the caller's argument. Commit `fix(utils): name caller argument in dtype errors`
+- [ ] `.export_gguf_internal` passes `save_directory = save_dir` (verified against unsloth `save.py:2055`); update the stand-in signature and the call-names expectation in `test-utils.R`. Commit `fix(utils): pass GGUF save directory by keyword`
+
+### 3. Naming and docs (`R/utils.R`, tests)
+- [ ] Rename `.py_as_device_string` → `py_as_device_string` and `.export_gguf_internal` → `.export_gguf` in R/ and tests. Commit `refactor(utils): align new helper names`
+- [ ] Add roxygen `@noRd` blocks with one-line descriptions to `.py_keywords`, `py_as_device_string`, `validate_py_identifier`, `py_callable_params`, `resolve_model_device` (convert existing `#` comments to `#'`). Commit `docs(utils): document internal helpers`
+- [ ] Extract a local name normalizer in `.find_exported_gguf`; add a comment and a test pinning that a quant-matching file containing `f16` still ranks first. Commit `refactor(utils): share GGUF name normalization`
+
+### 4. Tests
+- [ ] Add a `fake_gguf_object()` helper in `test-utils.R` and use it in the three `.export_gguf` tests. Commit `test(utils): share GGUF stand-in object`
+- [ ] `helper-skip.R`: compute state in one expression, assign once. Commit `test: assign Python skip state once`
+- [ ] `test-load.R`: assert `inherits(runsloth:::trl, "python.builtin.module")` without initializing Python. Commit `test(load): check delayed module proxy class`
+- [ ] Add `regexp =` to every `expect_error()` in `test-utils.R`. Commit `test(utils): match error messages`
+
+### 5. Bookkeeping and verification
+- [ ] `planning/STATE_1.md` line 49: replace `see git log -1` with `dfad6df`. Commit `docs(planning): record 1.3.1 commit hash`
+- [ ] Run `devtools::document()` (confirm no `man/`/`NAMESPACE` drift), `testthat::test_local()` (all pass), and `rcmdcheck::rcmdcheck(args = "--no-manual")` (0/0/0)
+- [ ] Archive this file to `planning/TODO_20261124-1.md`. Commit `docs(planning): archive review-fix plan`
+
+## Notes
+- Branch: `feat/package-base` (no new branch; fixes belong to this branch's review).
+- Planning artifacts are tracked; planning commits stay separate from code commits.
+- Conventional Commits between every task; no pushes or remote actions.
+- Decisions: Q1 keyword `save_directory`; Q2 rename only new helpers; Q3 keep ranking, document it; Q4 `regexp` matching; Q5 track TODO.md.
+- Planning docs (`EXECUTION_PLAN_1.md`, task files) are historical and are not edited for the renames.
