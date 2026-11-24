@@ -69,22 +69,27 @@ test_that(".find_exported_gguf searches nested subdirectories", {
   expect_identical(basename(.find_exported_gguf(dir, "q4_k_m")), "model-Q4_K_M.gguf")
 })
 
-test_that(".export_gguf passes arguments by keyword and returns the path", {
-  dir <- withr::local_tempdir()
-  env <- new.env(parent = emptyenv())
-  object <- list(
+# Stand-in for an unsloth model/tokenizer pair. Records the call in `env` and
+# writes `output` (if not NULL) to the save directory.
+fake_gguf_object <- function(env, output = "m-Q8_0.gguf") {
+  list(
     model = list(
       save_pretrained_gguf = function(save_directory, tokenizer, quantization_method,
                                       maximum_memory_usage) {
         env$call <- sys.call()
         env$quant <- quantization_method
         env$tokenizer <- tokenizer
-        file.create(file.path(save_directory, "m-Q8_0.gguf"))
+        if (!is.null(output)) file.create(file.path(save_directory, output))
       }
     ),
     tokenizer = "tok"
   )
-  path <- .export_gguf(object, dir, quantization_method = "q8_0")
+}
+
+test_that(".export_gguf passes arguments by keyword and returns the path", {
+  dir <- withr::local_tempdir()
+  env <- new.env(parent = emptyenv())
+  path <- .export_gguf(fake_gguf_object(env), dir, quantization_method = "q8_0")
   expect_identical(basename(path), "m-Q8_0.gguf")
   expect_identical(names(env$call)[-1], c("save_directory", "tokenizer", "quantization_method",
                                           "maximum_memory_usage"))
@@ -95,17 +100,8 @@ test_that(".export_gguf passes arguments by keyword and returns the path", {
 test_that(".export_gguf sends multiple quantization methods as a list", {
   dir <- withr::local_tempdir()
   env <- new.env(parent = emptyenv())
-  object <- list(
-    model = list(
-      save_pretrained_gguf = function(save_directory, tokenizer, quantization_method,
-                                      maximum_memory_usage) {
-        env$quant <- quantization_method
-        file.create(file.path(save_directory, "m-Q8_0.gguf"))
-      }
-    ),
-    tokenizer = "tok"
-  )
-  path <- .export_gguf(object, dir, quantization_method = c("q4_k_m", "q8_0"))
+  path <- .export_gguf(fake_gguf_object(env), dir,
+                       quantization_method = c("q4_k_m", "q8_0"))
   expect_true(is.list(env$quant))
   expect_identical(unlist(env$quant), c("q4_k_m", "q8_0"))
   expect_identical(basename(path), "m-Q8_0.gguf")
@@ -113,13 +109,8 @@ test_that(".export_gguf sends multiple quantization methods as a list", {
 
 test_that(".export_gguf aborts when no GGUF is produced", {
   dir <- withr::local_tempdir()
-  object <- list(
-    model = list(save_pretrained_gguf = function(save_directory, tokenizer,
-                                                 quantization_method,
-                                                 maximum_memory_usage) NULL),
-    tokenizer = "tok"
-  )
-  expect_error(.export_gguf(object, dir))
+  env <- new.env(parent = emptyenv())
+  expect_error(.export_gguf(fake_gguf_object(env, output = NULL), dir))
 })
 
 test_that("py_callable_params lists parameter names", {
