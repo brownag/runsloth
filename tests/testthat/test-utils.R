@@ -8,6 +8,7 @@ test_that("as_py_int coerces whole numbers and rejects the rest", {
   expect_error(as_py_int(Inf))
   expect_error(as_py_int("a"))
   expect_error(as_py_int(TRUE))
+  expect_error(as_py_int(3e9), regexp = "integer range")
 })
 
 test_that("validate_py_identifier accepts identifiers and rejects others", {

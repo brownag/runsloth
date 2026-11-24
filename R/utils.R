@@ -15,6 +15,9 @@ as_py_int <- function(x, arg = rlang::caller_arg(x)) {
   if (!is.numeric(x) || !all(is.finite(x)) || !all(x == round(x))) {
     cli::cli_abort("{.arg {arg}} must be a whole number (finite, no fractional part).")
   }
+  if (any(abs(x) > .Machine$integer.max)) {
+    cli::cli_abort("{.arg {arg}} must be within the integer range (+/-{(.Machine$integer.max)}).")
+  }
   as.integer(x)
 }
 
