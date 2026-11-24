@@ -6,12 +6,12 @@ Resolve the two-axis review findings on `feat/package-base` (excluding the user-
 ## Tasks
 
 ### 1. Planning
-- [ ] Commit this `TODO.md` as `docs(planning): add review-fix plan`
+- [x] Commit this `TODO.md` as `docs(planning): add review-fix plan`
 
 ### 2. Boundary helpers (`R/utils.R`)
-- [ ] `as_py_int` aborts when any `abs(x) > .Machine$integer.max`; add a `3e9` error test. Commit `fix(utils): reject whole numbers outside integer range`
-- [ ] `as_py_dtype` gains `arg = rlang::caller_arg(x)` and uses `{.arg {arg}}`; add a test that the error names the caller's argument. Commit `fix(utils): name caller argument in dtype errors`
-- [ ] `.export_gguf_internal` passes `save_directory = save_dir` (verified against unsloth `save.py:2055`); update the stand-in signature and the call-names expectation in `test-utils.R`. Commit `fix(utils): pass GGUF save directory by keyword`
+- [x] `as_py_int` aborts when any `abs(x) > .Machine$integer.max`; add a `3e9` error test. Commit `fix(utils): reject whole numbers outside integer range`
+- [x] `as_py_dtype` gains `arg = rlang::caller_arg(x)` and uses `{.arg {arg}}`; add a test that the error names the caller's argument. Commit `fix(utils): name caller argument in dtype errors`
+- [x] `.export_gguf_internal` passes `save_directory = save_dir` (verified against unsloth `save.py:2055`); update the stand-in signature and the call-names expectation in `test-utils.R`. Commit `fix(utils): pass GGUF save directory by keyword`
 
 ### 3. Naming and docs (`R/utils.R`, tests)
 - [ ] Rename `.py_as_device_string` → `py_as_device_string` and `.export_gguf_internal` → `.export_gguf` in R/ and tests. Commit `refactor(utils): align new helper names`
