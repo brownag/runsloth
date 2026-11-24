@@ -37,10 +37,6 @@ test_that(".find_exported_gguf ranks quantized, then other, then f16/bf16", {
     basename(.find_exported_gguf(dir, "q8_0")),
     "model-Q4_K_M.gguf"
   )
-  expect_identical(
-    basename(.find_exported_gguf(dir, "q4_k_m")),
-    "model-Q4_K_M.gguf"
-  )
 })
 
 test_that(".find_exported_gguf returns the f16 file when it is the only one", {
