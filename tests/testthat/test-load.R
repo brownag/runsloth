@@ -4,6 +4,9 @@ test_that("loading the package does not initialize Python", {
   expect_false(reticulate::py_available(initialize = FALSE))
 })
 
-test_that("delayed module bindings exist in the namespace", {
-  expect_true(exists("trl", envir = asNamespace("runsloth")))
+test_that(".onLoad binds delayed module proxies", {
+  ns <- asNamespace("runsloth")
+  for (name in c("unsloth", "trl", "datasets", "transformers", "torch", "inspect")) {
+    expect_s3_class(get(name, envir = ns), "python.builtin.module")
+  }
 })
