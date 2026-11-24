@@ -46,7 +46,7 @@ Branch: `feat/package-base` (base `main`)
 
 - Status: done. Verify-plus-one-test-cleanup; no package behavior changed.
 - Files: `tests/testthat/test-utils.R` (lines 40-43 removed, duplicate `.find_exported_gguf(dir, "q4_k_m")` expectation).
-- Code commit: `see git log -1` (subject `test(utils): drop duplicate GGUF ranking expectation`).
+- Code commit: `dfad6df` (subject `test(utils): drop duplicate GGUF ranking expectation`).
 - `test_local(filter='utils')` -> FAIL 0, WARN 0, SKIP 0, PASS 35.
 - `roxygen2::roxygenise()` + `git diff --exit-code NAMESPACE man/` -> clean (no-op).
 - `test_local()` -> FAIL 0, WARN 0, SKIP 0, PASS 37 (full suite; prior count 38 included the removed duplicate).
