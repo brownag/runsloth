@@ -7,7 +7,7 @@ Branch: `feat/package-base` (base `main`)
 
 - [x] `master` renamed to `main`
 - [x] `.gitignore` + `planning/` committed on `main` (`docs(planning):`)
-- [ ] `feat/package-base` created
+- [x] `feat/package-base` created
 - Suites: none yet (empty package). First green baseline = 1.1.1 acceptance.
 - Tooling: R 4.6.2, reticulate 1.47.0, roxygen2 8.1.1, testthat 3.3.2, rcmdcheck 1.4.0, Python 3.12.3 (`/usr/bin/python3`, no torch), AMD GPUs, no CUDA.
 
@@ -15,7 +15,7 @@ Branch: `feat/package-base` (base `main`)
 
 | Wave | Task | Status | Commit |
 |---|---|---|---|
-| 1 | 1.1.1 Package skeleton, delayed imports, test helpers | pending | |
+| 1 | 1.1.1 Package skeleton, delayed imports, test helpers | in progress | |
 | 2 | 1.2.1 Interop and GGUF helpers in `R/utils.R` | pending | |
 | 3 | 1.3.1 Release-hygiene pass | pending | |
 
