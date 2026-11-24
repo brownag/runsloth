@@ -42,6 +42,13 @@ test_that(".find_exported_gguf ranks quantized, then other, then f16/bf16", {
   )
 })
 
+test_that(".find_exported_gguf prefers a quantization match that also names f16", {
+  dir <- withr::local_tempdir()
+  file.create(file.path(dir, "a-BF16.gguf"))
+  file.create(file.path(dir, "a-Q4_K_M-F16.gguf"))
+  expect_identical(basename(.find_exported_gguf(dir, "q4-k-m")), "a-Q4_K_M-F16.gguf")
+})
+
 test_that(".find_exported_gguf returns the f16 file when it is the only one", {
   dir <- withr::local_tempdir()
   file.create(file.path(dir, "model-F16.gguf"))

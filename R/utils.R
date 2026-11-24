@@ -80,9 +80,10 @@ resolve_model_device <- function(model) {
   if (length(files) == 0L) return(NULL)
   files <- sort(files)
   base <- basename(files)
-  quant <- tolower(gsub("-", "_", quantization_method, fixed = TRUE))
-  matches_quant <- grepl(quant, tolower(gsub("-", "_", base, fixed = TRUE)), fixed = TRUE)
+  normalize <- function(x) tolower(gsub("-", "_", x, fixed = TRUE))
+  matches_quant <- grepl(normalize(quantization_method), normalize(base), fixed = TRUE)
   is_f16 <- grepl("f16", base, ignore.case = TRUE)
+  # A quantization match wins even when the name also contains f16/bf16.
   rank <- ifelse(matches_quant, 1L, ifelse(is_f16, 3L, 2L))
   best <- files[order(rank)][1L]
   normalizePath(best, winslash = "/", mustWork = FALSE)
