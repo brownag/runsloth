@@ -3,3 +3,4 @@
 ^\.development$
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^docs$
