@@ -14,9 +14,9 @@ Resolve the two-axis review findings on `feat/package-base` (excluding the user-
 - [x] `.export_gguf_internal` passes `save_directory = save_dir` (verified against unsloth `save.py:2055`); update the stand-in signature and the call-names expectation in `test-utils.R`. Commit `fix(utils): pass GGUF save directory by keyword`
 
 ### 3. Naming and docs (`R/utils.R`, tests)
-- [ ] Rename `.py_as_device_string` → `py_as_device_string` and `.export_gguf_internal` → `.export_gguf` in R/ and tests. Commit `refactor(utils): align new helper names`
-- [ ] Add roxygen `@noRd` blocks with one-line descriptions to `.py_keywords`, `py_as_device_string`, `validate_py_identifier`, `py_callable_params`, `resolve_model_device` (convert existing `#` comments to `#'`). Commit `docs(utils): document internal helpers`
-- [ ] Extract a local name normalizer in `.find_exported_gguf`; add a comment and a test pinning that a quant-matching file containing `f16` still ranks first. Commit `refactor(utils): share GGUF name normalization`
+- [x] Rename `.py_as_device_string` → `py_as_device_string` and `.export_gguf_internal` → `.export_gguf` in R/ and tests. Commit `refactor(utils): align new helper names`
+- [x] Add roxygen `@noRd` blocks with one-line descriptions to `.py_keywords`, `py_as_device_string`, `validate_py_identifier`, `py_callable_params`, `resolve_model_device` (convert existing `#` comments to `#'`). Commit `docs(utils): document internal helpers`
+- [x] Extract a local name normalizer in `.find_exported_gguf`; add a comment and a test pinning that a quant-matching file containing `f16` still ranks first. Commit `refactor(utils): share GGUF name normalization`
 
 ### 4. Tests
 - [ ] Add a `fake_gguf_object()` helper in `test-utils.R` and use it in the three `.export_gguf` tests. Commit `test(utils): share GGUF stand-in object`
